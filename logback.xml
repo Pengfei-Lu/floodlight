@@ -4,12 +4,37 @@
       <pattern>%date{yyyy-MM-dd HH:mm:ss.S} %-5level [%logger{15}] %msg%n</pattern>
     </encoder>
   </appender>
-  <root level="DEBUG">
+  
+  <appender name="fileAppender" class="ch.qos.logback.core.FileAppender">
+    <file>F://testLog.txt</file>
+    <encoder>
+        <!--<pattern>%d{HH:mm:ss.SSS} - %msg%n</pattern>-->
+        <pattern>%msg%n</pattern>
+    </encoder>
+    <append>false</append>
+    <prudent>false</prudent>
+  </appender>
+  
+  <root level="ERROR">
     <appender-ref ref="STDOUT" />
   </root>
-  <logger name="org" level="DEBUG"/>
-  <logger name="LogService" level="DEBUG"/> <!-- Restlet access logging -->
-  <logger name="net.floodlightcontroller" level="DEBUG"/>
-  <logger name="net.floodlightcontroller.logging" level="DEBUG"/>
-  <logger name="org.sdnplatform" level="INFO"/>
+  
+  <logger name="net.floodlightcontroller.accesscontrollist.web" level="INFO" additivity="false">
+    <appender-ref ref="STDOUT" />
+    <appender-ref ref="fileAppender" />
+  </logger>
+  
+  <logger name="net.floodlightcontroller.accesscontrollist" level="ERROR" additivity="false">
+    <appender-ref ref="STDOUT" />
+    <appender-ref ref="fileAppender" />
+  </logger>
+  
+  <!--
+  <logger name="net.floodlightcontroller.accesscontrollist.web" level="INFO" additivity="false">
+    <appender-ref ref="fileAppender" />
+  </logger>
+  <logger name="net.floodlightcontroller.accesscontrollist" level="INFO" additivity="false">
+    <appender-ref ref="fileAppender" />
+  </logger>
+  -->
 </configuration>

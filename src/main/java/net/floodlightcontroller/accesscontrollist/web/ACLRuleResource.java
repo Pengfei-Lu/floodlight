@@ -60,6 +60,7 @@ public class ACLRuleResource extends ServerResource {
 		IACLService aclService = (IACLService) getContext().getAttributes().get(
 				IACLService.class.getCanonicalName());
 		
+		long startTime = System.nanoTime();
 		ACLRule newRule;
 		try {
 			newRule = jsonToRule(json);
@@ -76,6 +77,8 @@ public class ACLRuleResource extends ServerResource {
 			status = "Failed! Either nw_src or nw_dst must be specified.";
 			return ("{\"status\" : \"" + status + "\"}");
 		}
+		long endTime = System.nanoTime();
+//		log.info("parse JSON: {} ms", endTime - startTime);
 		
 		if(aclService.addRule(newRule)){
 			status = "Success! New rule added.";

@@ -99,14 +99,48 @@ public class ACL implements IACLService, IFloodlightModule, IDeviceListener {
 	@Override
 	public boolean addRule(ACLRule rule) {
 
+		long startTime = System.nanoTime();
 		if(checkRuleMatch(rule)){
 			return false;
 		}
 		
 		rule.setId(lastRuleId++);
 		this.ruleSet.add(rule);
-		logger.info("No.{} ACL rule added.", rule.getId());
+		long endTime = System.nanoTime();
+		
+		Set<Integer> set = new HashSet<Integer>();
+//		set.add(1001);
+//		set.add(2001);
+//		set.add(3001);
+//		set.add(4001);
+//		set.add(5001);
+//		set.add(6001);
+//		set.add(7001);
+//		set.add(8001);
+//		set.add(9001);
+//		set.add(10001);
+//		set.add(11001);
+//		set.add(12001);
+//		set.add(13001);
+//		set.add(14001);
+//		set.add(15001);
+//		set.add(16001);
+//		set.add(17001);
+//		set.add(18001);
+//		set.add(19001);
+//		set.add(20001);
+		
+		if(set.contains(lastRuleId - 1)){
+			logger.info("No.{} ACL rule added.", rule.getId());
+			logger.info("add rule: {}", (double) (endTime - startTime)/1000000);
+		}
+		
+		startTime = System.nanoTime();
 		enforceAddedRule(rule);
+		endTime = System.nanoTime();
+		if(set.contains(lastRuleId - 1)){
+			logger.info("enforce rule: {}", (double) (endTime - startTime)/1000000);
+		}
 		return true;
 	}
 
@@ -116,6 +150,7 @@ public class ACL implements IACLService, IFloodlightModule, IDeviceListener {
 	@Override
 	public void removeRule(int ruleid) {
 
+		long startTime = System.nanoTime();
 		Iterator<ACLRule> iter = this.ruleSet.iterator();
 		while (iter.hasNext()) {
 			ACLRule rule = iter.next();
@@ -123,8 +158,10 @@ public class ACL implements IACLService, IFloodlightModule, IDeviceListener {
 				break;
 			}
 		}
+		long endTime = System.nanoTime();
+		logger.info("Remove rule: {}", (double) (endTime-startTime)/1000000 );
 
-		logger.info("No.{} ACL rule removed.", ruleid);
+//		logger.info("No.{} ACL rule removed.", ruleid);
 		enforceRemovedRule(ruleid);
 	}
 
@@ -143,10 +180,10 @@ public class ACL implements IACLService, IFloodlightModule, IDeviceListener {
 		while (ruleIdIter.hasNext()) {
 			int ruleId = ruleIdIter.next();
 			Set<String> flowNameSet = ruleId2FlowName.get(ruleId);
-			logger.info("No.{} ACL rule removed.", ruleId);
+//			logger.info("No.{} ACL rule removed.", ruleId);
 			for (String flowName : flowNameSet) {
 				removeFlow(flowName);
-				logger.info("ACL flow {} removed.", flowName);
+//				logger.info("ACL flow {} removed.", flowName);
 			}
 		}
 		this.ruleId2FlowName = new HashMap<Integer, Set<String>>();
@@ -182,13 +219,16 @@ public class ACL implements IACLService, IFloodlightModule, IDeviceListener {
 	 */
 	private void enforceRemovedRule(int ruleId) {
 
+		long startTime = System.nanoTime();
 		Set<String> flowEntryName = ruleId2FlowName.get(ruleId);
 		Iterator<String> iter = flowEntryName.iterator();
 		while (iter.hasNext()) {
 			String name = iter.next();
 			removeFlow(name);
-			logger.info("ACL flow " + name + " removed.");
+//			logger.info("ACL flow " + name + " removed.");
 		}
+		long endTime = System.nanoTime();
+		logger.info("enforce removed rule: {}", (double)(endTime - startTime)/1000000);
 
 	}
 		
@@ -264,7 +304,7 @@ public class ACL implements IACLService, IFloodlightModule, IDeviceListener {
 	        storageSource.insertRowAsync(StaticFlowEntryPusher.TABLE_NAME, flow);
 	        
 		}
-		logger.info("ACL flow " + flowName + " added in " + dpid);
+//		logger.info("ACL flow " + flowName + " added in " + dpid);
 	}
 
 	/**
@@ -333,7 +373,7 @@ public class ACL implements IACLService, IFloodlightModule, IDeviceListener {
 		}
 		String dpid = HexString.toHexString(switchPort[0].getSwitchDPID().getLong());
 		String ip = IPv4.fromIPv4Address(ips[0].getInt());
-		logger.info("New AP added. [dpid:" + dpid + " ip:" + ip + "]");
+//		logger.info("New AP added. [dpid:" + dpid + " ip:" + ip + "]");
 
 		AP ap = new AP(ip,dpid);
 		apManager.addAP(ap);
@@ -344,7 +384,7 @@ public class ACL implements IACLService, IFloodlightModule, IDeviceListener {
 	 * push ACL flow given the new device
 	 */
 	private void processAPAdded(AP ap) {
-
+		long startTime = System.nanoTime();
 		String dpid = ap.getDpid();
 		int ip = IPv4.toIPv4Address(ap.getIp());
 
@@ -377,6 +417,10 @@ public class ACL implements IACLService, IFloodlightModule, IDeviceListener {
 				}
 			}
 		}
+		long endTime = System.nanoTime();
+		if(ap.getIp().equals("10.0.0.3")) {
+			logger.error("AP added: {}", (double)(endTime - startTime)/1000000);
+		}
 	}
 
 	@Override
@@ -406,7 +450,7 @@ public class ACL implements IACLService, IFloodlightModule, IDeviceListener {
 			}
 		}
 		
-		logger.info("New AP added. [dpid:" + dpid + " ip:" + ip + "]");
+//		logger.info("New AP added. [dpid:" + dpid + " ip:" + ip + "]");
 		AP ap = new AP(ip, dpid);
 		apManager.addAP(ap);
 		processAPAdded(ap);
